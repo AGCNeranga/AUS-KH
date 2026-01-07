@@ -1,3 +1,21 @@
+/* ================================================================
+   STEP 3: COPYRIGHT NOTICE & CANARY CODE
+   © 2026 | LS Publication Dept. | Developed by Charith Neranga
+   CANARY_ID: LSPD-CN-2026-MARKER-PREMIUM
+   OWNERSHIP VERIFIED: CHARITH NERANGA
+   ================================================================
+*/
+
+// STEP 2: Disable Right-Click
+document.addEventListener('contextmenu', event => event.preventDefault());
+
+// STEP 2: Disable Keyboard Shortcuts (F12, Ctrl+U, Ctrl+Shift+I, Ctrl+Shift+J)
+document.onkeydown = function(e) {
+  if (e.keyCode === 123) return false; // F12
+  if (e.ctrlKey && (e.keyCode === 85)) return false; // Ctrl+U
+  if (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) return false; // Ctrl+Shift+I/J
+};
+
 // === Password Protection ===
 document.getElementById("password").addEventListener("keypress", function(e){
   if(e.key==="Enter") checkPassword();
@@ -51,7 +69,6 @@ function loadFile(slot,event){
 }
 
 // === Process slot with K/H for all races ===
-
 function processSlot(slot){
   if(!window['slotText'+slot]){
     alert('Please upload a file first for this slot!');
@@ -62,41 +79,20 @@ function processSlot(slot){
   let outputLines = [];
 
   lines.forEach(line=>{
-    // Remove <&te> and <&tb(...) *C> tags
     line = line.replace(/<\&te>/g, "").replace(/<\&tb.*?\*C>/g,"").trim();
-
-    // Add <v9.00> <e0> only before @Cour:
     if(/^@Cour:/.test(line)){
       line = "<v9.00> <e0>" + line;
     }
-
-    // AGC Neranga Fix @Race: spacing
-if(/^@Race:/.test(line)){
-  // Ensure one space after @Race:
-  line = line.replace(/^@Race:\s*/, "@Race:");
-
-  // FIXED- insert missing space between race number and time
-  // Handles cases like "GLO/39:52" -> "GLO/3 9:52" or "GLO/511:00" -> "GLO/5 11:00"
- // FIXED- insert missing space between race number and time
-  // Handles cases like "GLO/39:52" -> "GLO/3 9:52" or "GLO/511:00" -> "GLO/5 11:00"
-  // Insert space after race number before time (works for 1 or 2 digit race numbers)
-  // Matches: @Race:<track>/<raceNumber><time>
-  // Example: @Race:GLO/910:45 -> @Race:GLO/9 10:45
-  line = line.replace(/(@Race:[A-Z]+\/)(\d)(\d{1,2}:\d{2})/, "$1$2 $3");
-  line = line.replace(/(@Race:[A-Z]+\/)(\d{1,2})(\d{2}:\d{2})/, "$1$2 $3");
-
-  // Ensure space after closing parenthesis of time
-  line = line.replace(/(\(\d{1,2}:\d{2}\))([A-Z])/, "$1 $2");
-
-  // Normalize spaces
-  line = line.replace(/\s+/g, " ");
-}
-
-
+    if(/^@Race:/.test(line)){
+      line = line.replace(/^@Race:\s*/, "@Race:");
+      line = line.replace(/(@Race:[A-Z]+\/)(\d)(\d{1,2}:\d{2})/, "$1$2 $3");
+      line = line.replace(/(@Race:[A-Z]+\/)(\d{1,2})(\d{2}:\d{2})/, "$1$2 $3");
+      line = line.replace(/(\(\d{1,2}:\d{2}\))([A-Z])/, "$1 $2");
+      line = line.replace(/\s+/g, " ");
+    }
     outputLines.push(line);
   });
 
-  // === K/H marking ===
   let tempLines = [...outputLines];
   let raceIndexes = [];
   tempLines.forEach((line,i)=>{ if(line.startsWith("@Race:")) raceIndexes.push(i); });
@@ -136,8 +132,6 @@ if(/^@Race:/.test(line)){
   document.getElementById('inputText').value = window['slotText'+slot];
   document.getElementById('outputText').value = window['slotOutput'+slot];
 }
-
-
 
 // === Download processed TXT ===
 function downloadSlot(slot){
@@ -195,5 +189,3 @@ setInterval(() => {
     current = next;
   }, 2000);
 }, 5000);
-
-
